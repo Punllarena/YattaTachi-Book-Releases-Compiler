@@ -2,11 +2,12 @@ from bs4 import BeautifulSoup as bs
 import requests
 from datetime import datetime
 import pandas as pd
+import os
 
 
 #Link to Yatta Tachi Resources. We're looking for the first link that points to the novel and manga releases for the month.
 YATTA = "https://yattatachi.com/category/resources"
-FOLDER = "Outside" # Change this to your preferred folder name, only using that because that's what the folder name I used was
+FOLDER = "YattaTachi" # Change this to your preferred folder name, only using that because that's what the folder name I used was
 
 
 def tag_releases(title:str)->str: 
@@ -97,6 +98,9 @@ ind_chap_df = pd.DataFrame(individual_chapters).T
 filename = book_release_post.replace("/","").replace(" ","_")
 nook_file = "Nook_Edition_" + filename
 ind_chap_file = "Individual_Chapters_" + filename
+
+if not os.path.exists(FOLDER):
+    os.makedirs(FOLDER)
 
 df.to_csv(f"{FOLDER}/{filename}.csv", index=False)
 nook_df.to_csv(f"{FOLDER}/{nook_file}.csv", index=False)
