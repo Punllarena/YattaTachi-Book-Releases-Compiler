@@ -4,9 +4,9 @@
 
 ## Requirements
 
-- Python 3
-- Pandas
-- BeautifulSoup4
+- Python 3.12 or higher
+- Pandas 2.2.3 or higher
+- BeautifulSoup4 4.12.3 or higher
 
 ## Usage
 
