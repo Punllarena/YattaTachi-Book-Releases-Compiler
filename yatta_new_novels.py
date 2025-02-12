@@ -13,14 +13,31 @@ FOLDER = "YattaTachi" # Change this to your preferred folder name, only using th
 def tag_releases(title:str)->str: 
     if title.__contains__("Azuki") and title.__contains__("Chapter") or title.__contains__("NOOK Edition") and title.__contains__("#"):
         tag ="Individual Chapter Release"
-        print(f"[INFO] '{title}' is an Individual Chapter Release")
+        # print(f"[INFO] '{title}' is an Individual Chapter Release")
     elif title.__contains__("NOOK Edition"):
         tag = "NOOK Edition Release"
-        print(f"[INFO] '{title}' is a NOOK Edition Release")
+        # print(f"[INFO] '{title}' is a NOOK Edition Release")
     else: 
         tag = "None"
-        print(f"[INFO] '{title}' has no tags")
+        # print(f"[INFO] '{title}' has no tags")
     return tag
+
+def clean_for_search(title:str)->str:
+    """
+    Cleans a title string by removing certain punctuation characters.
+
+    This function removes the following characters from the input title:
+    colon (:), period (.), parentheses (()), ampersand (&), comma (,), and brackets ([]).
+    
+    Args:
+        title (str): The title string to be cleaned.
+
+    Returns:
+        str: The cleaned title string with specified characters removed.
+    """
+
+    return title.translate(str.maketrans("","",":.()&,[]"))
+    
 
 try:
     print("[INFO] Opening Yatta Tachi Resources")
@@ -29,7 +46,8 @@ try:
     content = request.content
     soup = bs(content, "html.parser")
 except requests.exceptions.RequestException as e:
-    print(f"An error occurred: {e}")
+    print(f"[ERROR] An error occurred: {e}")
+
 
 latest_post = soup.find_all("li", class_="post-summary")
 
@@ -39,18 +57,18 @@ for post in latest_post:
         print("[INFO] Manga / Light Novel / Book Releases post Found:")
         book_release_post = post.text
         book_release_link = post.a["href"]
-        print(f"Title: {book_release_post}")
-        print(f"Link: {book_release_link}")
+        print(f"[INFO] Title: {book_release_post}")
+        print(f"[INFO] Link: {book_release_link}")
         break
 
 try:
-    print(f"[INFO] Opening {book_release_post}")
+    print(f"[INFO] Opening {book_release_post}: {book_release_link}")
     request = requests.get(book_release_link)
     request.raise_for_status()  # Raises an error for bad responses
     content = request.content
     releases_soup = bs(content, "html.parser")
 except requests.exceptions.RequestException as e:
-    print(f"An error occurred: {e}")
+    print(f"[ERROR] An error occurred: {e}")
 
 
 print("[INFO] Checking for Book Releases")
@@ -59,6 +77,7 @@ book_releases = releases_soup.find_all("li", class_="release-single u-ta-c")
 book_info = {}
 nook_releases = {}
 individual_chapters = {}
+search_titles = []
 for book in book_releases:
     # print(book)
     # Grab Release Date, format it to YYYY-MM-DD
@@ -75,6 +94,7 @@ for book in book_releases:
     book_author = book.find("span", class_="release-author").text.split("By ")[1]
     book_release_type = book.find("span", class_="release-type").text
     book_release_company = book.find("span", class_="release-company").text
+    clean_title = clean_for_search(book_title)
     book_info_dict = {
         "Date": formatted_date,
         "Title": book_title,
@@ -84,6 +104,7 @@ for book in book_releases:
         "Link": book_release_link,
     }
     if book_tag == "None":
+        search_titles.append(clean_title)
         book_info[book_title] = book_info_dict
     elif book_tag == "NOOK Edition Release":
         nook_releases[book_title] = book_info_dict
@@ -101,9 +122,16 @@ ind_chap_file = "Individual_Chapters_" + filename
 
 if not os.path.exists(FOLDER):
     os.makedirs(FOLDER)
+    
 
-df.to_csv(f"{FOLDER}/{filename}.csv", index=False)
-nook_df.to_csv(f"{FOLDER}/{nook_file}.csv", index=False)
-ind_chap_df.to_csv(f"{FOLDER}/{ind_chap_file}.csv", index=False)
+with open(f"{FOLDER}/search.txt", "a") as file:
+    for title in search_titles:
+        file.write(f"{title}\n")
+df.to_csv(f"{FOLDER}/{filename}.csv", index=False, mode='w')
+nook_df.to_csv(f"{FOLDER}/{nook_file}.csv", index=False, mode='w')
+ind_chap_df.to_csv(f"{FOLDER}/{ind_chap_file}.csv", index=False, mode='w')
+
+
 
 #TODO Create a Series Title, and Series Index Column. 
+#TODO create a file to use for the other script: Search Nyaa for the Release Torrent
