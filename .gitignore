@@ -25,6 +25,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+YattaTachi/
+.qodo/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
