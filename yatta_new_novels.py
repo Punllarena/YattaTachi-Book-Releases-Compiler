@@ -77,7 +77,7 @@ book_releases = releases_soup.find_all("li", class_="release-single u-ta-c")
 book_info = {}
 nook_releases = {}
 individual_chapters = {}
-search_titles = []
+search_titles = ["===="+book_release_post+"===="] # A way to identify which post we're looking at  
 for book in book_releases:
     # print(book)
     # Grab Release Date, format it to YYYY-MM-DD
