@@ -7,6 +7,7 @@
 - Python 3.12 or higher
 - Pandas 2.2.3 or higher
 - BeautifulSoup4 4.12.3 or higher
+- Requests
 
 ## Usage
 
@@ -18,7 +19,9 @@ python3 -m venv venv
 source venv/bin/activate
 pip install pandas
 pip install beautifulsoup4
+pip install requests
 ```
+
 
 Then, you can run the script using the command below:
 
